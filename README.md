@@ -1,6 +1,16 @@
-# TTS Launcher - Quick Start for Multiple TTS Engines
+Universal Text-to-Speech System with Online and Offline Capabilities
 
-Simple library for quickly testing various Text-to-Speech (TTS) engines through a unified interface.
+## Project Overview
+
+This library provides a unified interface for various text-to-speech synthesis systems, enabling seamless switching between online and offline engines based on requirements and internet connectivity.
+
+Key Features:
+- Online synthesis through Google TTS
+- Offline synthesis using espeak and Piper
+- Unified interface for all engines
+- Multi-language support
+- Multiple audio output formats
+- CLI and Python API
 
 ## Installation
 
@@ -61,6 +71,8 @@ text-to-speech/
 ├── engines/
 │   ├── gtts.py
 │   ├── pyttsx3.py
+│   ├── silerotts.py
+│   ├── coquitts.py
 │   └── piper.py
 ├── libs/
 │   ├── api.py
@@ -68,9 +80,19 @@ text-to-speech/
 │   ├── playback.py
 │   └── exceptions.py
 ├── bin/
-│   └── install_piper.sh
+│   ├── install_pipertts.sh
+│   ├── install_coquitts.sh
+│   └── install_silerotts.sh
+├── docs/
+│   ├── COQUITTS.md
+│   ├── ENGINES.md
+│   ├── PIPERTTS.md
+│   └── SILEROTTS.md
 ├── cli.py
+├── test_tts.py
+├── play.py
 └── requirements.txt
+
 ```
 
 ### Installing dependencies
