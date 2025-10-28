@@ -17,7 +17,7 @@ import io
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Union, Optional
+from typing import Union, Optional, cast
 import logging
 
 # Import exceptions for export
@@ -72,7 +72,7 @@ def text_to_speech_bytes(
         )
 
     # Generate audio bytes
-    return generate_func(validated_text, config)
+    return cast(bytes, generate_func(validated_text, config))
 
 
 def text_to_speech_file(

@@ -9,7 +9,7 @@ import os
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Callable, Dict, List, Any, Optional, Union
+from typing import Callable, Dict, List, Any, Optional, Union, cast
 import io
 
 from .exceptions import TTSException, EngineNotAvailableError, ValidationError
@@ -90,7 +90,7 @@ def validate_language(language: str) -> str:
     return language.lower()
 
 
-def get_engine_generate_function(engine_name: str) -> Callable:
+def get_engine_generate_function(engine_name: str) -> Callable[..., Any]:
     """
     Get the generate function for an engine.
 
@@ -105,7 +105,7 @@ def get_engine_generate_function(engine_name: str) -> Callable:
     if not func:
         raise ValidationError(f"Engine {engine_name} has no generate function")
 
-    return func
+    return cast(Callable[..., Any], func)
 
 
 def compose(*functions: Callable) -> Callable:
@@ -119,30 +119,30 @@ def compose(*functions: Callable) -> Callable:
     return composed
 
 
-def with_engine(engine: str) -> Callable:
+def with_engine(engine: str) -> Callable[..., Any]:
     """Create a function that uses the given engine."""
 
-    def engine_wrapper(func: Callable) -> Callable:
+    def engine_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             kwargs["engine"] = engine
             return func(*args, **kwargs)
 
         return wrapper
 
-    return engine_wrapper
+    return cast(Callable[..., Any], engine_wrapper)
 
 
-def with_language(language: str) -> Callable:
+def with_language(language: str) -> Callable[..., Any]:
     """Create a function that uses the given language."""
 
-    def language_wrapper(func: Callable) -> Callable:
+    def language_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             kwargs["language"] = language
             return func(*args, **kwargs)
 
         return wrapper
 
-    return language_wrapper
+    return cast(Callable[..., Any], language_wrapper)
 
 
 def create_tts_pipeline(engine: str = "gtts", language: str = "en") -> Callable:

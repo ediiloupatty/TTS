@@ -37,7 +37,7 @@ import queue
 import tempfile
 import io
 import wave
-from typing import Optional, Dict, Any, cast, List, Tuple
+from typing import Optional, Dict, Any, cast, List, Tuple, IO
 from dotenv import load_dotenv
 
 # Configure logging
@@ -50,7 +50,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 try:
-    from libs.api import (
+    from libs.api import (  # type: ignore
         play_audio,
         TTSException,
         ValidationError,
@@ -67,7 +67,7 @@ except ImportError as e:
     logger.error(f"Failed to import TTS library: {e}")
     sys.exit(1)
 
-SPLIT_REGEX = re.compile(r"(?<=[\.\!\?]|,|\n)")
+SPLIT_REGEX = re.compile(r"(?<=[.!?]|,|\n)")
 
 
 def chunk_text(text: str, max_len: int = 5000) -> List[str]:
@@ -97,7 +97,7 @@ def chunk_text(text: str, max_len: int = 5000) -> List[str]:
     return chunks
 
 
-def concat_wav_files(in_paths: List[str], out_stream: io.BufferedIOBase) -> None:
+def concat_wav_files(in_paths: List[str], out_stream: IO[bytes]) -> None:
     """Concat WAV files (with same parametrs) to one WAV file,
     recordings to out_stream."""
     if not in_paths:
@@ -352,13 +352,13 @@ def to_file(
     if args.file == "":
         audio_dir = args.audio_dir or config["audio_directory"]
         ensure_audio_directory(audio_dir)
-        timestamp_filename = generate_timestamp_filename("", extension)
+        timestamp_filename = cast(str, generate_timestamp_filename("", extension))
         return os.path.join(audio_dir, timestamp_filename)
     if args.file.endswith("/") or (
         os.path.exists(args.file) and os.path.isdir(args.file)
     ):
         ensure_audio_directory(args.file)
-        timestamp_filename = generate_timestamp_filename("", extension)
+        timestamp_filename = cast(str, generate_timestamp_filename("", extension))
         return os.path.join(args.file, timestamp_filename)
     parent_dir = os.path.dirname(args.file)
     if parent_dir and parent_dir != ".":
