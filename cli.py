@@ -52,17 +52,8 @@ logger = logging.getLogger(__name__)
 try:
     from libs.api import (  # type: ignore
         play_audio,
-        TTSException,
-        ValidationError,
-        EngineNotAvailableError,
     )
-
-    """ By Silletr -
-     This functions is unavailable,
-     write it and u can remove Except block
-     Cause it local modules that not need installigng
-    """
-    from libs.tools import generate_timestamp_filename, ensure_audio_directory
+    from libs.exceptions import TTSException, ValidationError, EngineNotAvailableError
 except ImportError as e:
     logger.error(f"Failed to import TTS library: {e}")
     sys.exit(1)
@@ -351,17 +342,22 @@ def to_file(
     extension = "mp3" if engine == "gtts" else "wav"
     if args.file == "":
         audio_dir = args.audio_dir or config["audio_directory"]
+        from libs.tools import ensure_audio_directory
         ensure_audio_directory(audio_dir)
+        from libs.api import generate_timestamp_filename
         timestamp_filename = cast(str, generate_timestamp_filename("", extension))
         return os.path.join(audio_dir, timestamp_filename)
     if args.file.endswith("/") or (
         os.path.exists(args.file) and os.path.isdir(args.file)
     ):
+        from libs.tools import ensure_audio_directory
         ensure_audio_directory(args.file)
+        from libs.api import generate_timestamp_filename
         timestamp_filename = cast(str, generate_timestamp_filename("", extension))
         return os.path.join(args.file, timestamp_filename)
     parent_dir = os.path.dirname(args.file)
     if parent_dir and parent_dir != ".":
+        from libs.tools import ensure_audio_directory
         ensure_audio_directory(parent_dir)
     filename: str = args.file
     return filename
@@ -406,7 +402,9 @@ def main() -> int:
                 output_filename = to_file(args, config, engine)
             else:
                 audio_dir = config["audio_directory"]
+                from libs.tools import ensure_audio_directory
                 ensure_audio_directory(audio_dir)
+                from libs.api import generate_timestamp_filename
                 prefix = config.get("filename_prefix", "")
                 extension = "wav" if engine in ["pyttsx3", "pipertts"] else "mp3"
                 timestamp_filename = generate_timestamp_filename(prefix, extension)
@@ -499,8 +497,10 @@ def main() -> int:
                     if (output_filename and os.path.isdir(output_filename))
                     else (args.audio_dir or config["audio_directory"])
                 )
+                from libs.tools import ensure_audio_directory
                 ensure_audio_directory(out_dir)
                 for i, p in enumerate(collected_paths, start=1):
+                    from libs.api import generate_timestamp_filename
                     fname = generate_timestamp_filename(f"part_{i:03d}_", ext)
                     dst = os.path.join(out_dir, fname)
                     os.replace(p, dst)

@@ -6,8 +6,7 @@ Custom exceptions for TTS operations.
 
 
 class TTSException(Exception):
-    """Base exception for TTS operations."""
-
+    """Custom exception for TTS errors."""
     pass
 
 
