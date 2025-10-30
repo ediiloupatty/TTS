@@ -22,6 +22,7 @@ import logging
 
 # Import exceptions for export
 from libs.exceptions import ValidationError
+from libs.exceptions import EngineNotAvailableError
 
 # Import dynamic engine loader
 sys.path.insert(0, str(Path(__file__).parent.parent))

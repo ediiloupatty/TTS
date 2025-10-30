@@ -32,28 +32,55 @@ def is_available() -> bool:
     return AVAILABLE
 
 
-def generate(text: str, config: dict) -> bytes:
+def generate(
+    text: str,
+    language: str = "id",
+    voice: str = None,
+    rate: int = 150,
+    volume: float = 0.9,
+    output_format: str = "wav",
+    output_path: str = None,
+    **kwargs,
+) -> bytes:
     """
-    Generate TTS and return audio as bytes.
-
+    Generate speech using pyttsx3 (offline)
     Args:
         text: Text to synthesize
-        config: Configuration dict with language, rate, volume
-
+        language: language code (e.g. 'id', 'en')
+        voice: voice id (optional)
+        rate: speaking rate
+        volume: volume (0.0 - 1.0)
     Returns:
         Audio bytes in WAV format
     """
+    import pyttsx3
+
+    engine = pyttsx3.init()
+    engine.setProperty("rate", rate)
+    engine.setProperty("volume", volume)
+
+    voices = engine.getProperty("voices")
+    if voice:
+        # Manual override jika user tentukan voice
+        engine.setProperty("voice", voice)
+    elif voices:
+        # Kalau tidak ada preferensi, gunakan voice pertama
+        engine.setProperty("voice", voices[0].id)
+        # Coba cari voice yang cocok dengan bahasa
+        for v in voices:
+            if hasattr(v, "languages"):
+                langs = [str(l).lower() for l in v.languages]
+                if language in langs or f"{language}_" in "".join(langs):
+                    engine.setProperty("voice", v.id)
+                    break
+                elif language == "id" and ("indonesian" in v.name.lower() or "id" in v.id.lower()):
+                    engine.setProperty("voice", v.id)
+                    break
+
     if not AVAILABLE:
         raise EngineNotAvailableError("pyttsx3 not available")
 
     try:
-        # Initialize engine
-        engine = pyttsx3.init()
-        voices = engine.getProperty("voices")
-        if voices:
-            engine.setProperty("voice", voices[0].id)
-        engine.setProperty("rate", config.get("rate", 150))
-        engine.setProperty("volume", config.get("volume", 0.9))
 
         # Generate to temporary file
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
